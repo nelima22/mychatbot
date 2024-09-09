@@ -1,3 +1,7 @@
+import streamlit as st
+import os
+from beyondllm import source, retrieve, embeddings, llms, generator
+from beyondllm.llms import GroqModel
 import nltk
 import ssl
 
@@ -13,10 +17,6 @@ nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 nltk.download('stopwords')
 
-import streamlit as st
-import os
-from beyondllm import source, retrieve, embeddings, llms, generator
-from beyondllm.llms import GroqModel
 
 def generate_response(uploaded_file, query_text):
     if uploaded_file is not None and query_text:
@@ -79,18 +79,41 @@ st.write("""
 3. Upload your document and start asking questions
 """)
 
-# Try to get the API key from secrets or environment variables
-groq_api_key = None
+def get_groq_api_key():
+    # First, try to get from Streamlit secrets
+    if 'GROQ_API_KEY' in st.secrets:
+        return st.secrets["GROQ_API_KEY"]
+    
+    # Then, try to get from environment variables
+    if 'GROQ_API_KEY' in os.environ:
+        return os.environ['GROQ_API_KEY']
+    
+    # If not found, return None
+    return None
 
-if 'GROQ_API_KEY' in os.environ:
-    groq_api_key = os.environ['GROQ_API_KEY']
-else:
-    st.warning("No Groq API key found in secrets or environment variables. Please enter it below.")
+# Use the function to get the API key
+groq_api_key = get_groq_api_key()
+
+# If no API key is found, prompt the user
+if not groq_api_key:
+    st.warning("No Groq API key found in secrets or environment variables.")
     groq_api_key = st.text_input('Enter your Groq API Key:', type='password')
     if groq_api_key:
-        groq_api_key = os.environ['GROQ_API_KEY']
+        # Store the entered key in session state
+        st.session_state['groq_api_key'] = groq_api_key
     else:
         st.error("Please enter a Groq API key to proceed.")
+        st.stop()
+else:
+    st.success("Groq API key found!")
+
+# Retrieve the key from session state if it was manually entered
+if 'groq_api_key' in st.session_state:
+    groq_api_key = st.session_state['groq_api_key']
+
+# Debug information
+st.write(f"API Key status: {'Set' if groq_api_key else 'Not set'}")
+st.write(f"API Key length: {len(groq_api_key) if groq_api_key else 'N/A'}")
 
 # File upload
 uploaded_file = st.file_uploader('Upload an article', type='pdf')
