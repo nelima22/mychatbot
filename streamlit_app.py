@@ -1,7 +1,3 @@
-import streamlit as st
-import os
-from beyondllm import source, retrieve, embeddings, llms, generator
-from beyondllm.llms import GroqModel
 import nltk
 import ssl
 
@@ -17,6 +13,11 @@ nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 nltk.download('stopwords')
 
+
+import streamlit as st
+import os
+from beyondllm import source, retrieve, embeddings, llms, generator
+from beyondllm.llms import GroqModel
 
 def generate_response(uploaded_file, query_text):
     if uploaded_file is not None and query_text:
