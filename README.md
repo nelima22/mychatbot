@@ -8,5 +8,5 @@ The App is an advanced question-answering platform that allows users to upload t
 
 ## GitHub Codespaces
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://orange-space-dollop-4464p7rqwggh5xqw.github.dev/)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://ubiquitous-halibut-pjjxvgxww54f7gqg.github.dev/)
 
