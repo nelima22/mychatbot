@@ -5,4 +5,4 @@ llama-index-core>=0.10.1
 llama-index-embeddings-huggingface
 pypdf
 llama-index-readers-file
-pip install llama-index[readers]
+llama-index[readers]
