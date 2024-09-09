@@ -2,6 +2,5 @@ streamlit
 beyondllm
 llama-index-core>=0.10.1
 llama-index-embeddings-huggingface
-pypdf
 llama-index-readers-file
-llama-index[readers]
+groq
