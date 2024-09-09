@@ -1,48 +1,43 @@
 import streamlit as st
-import tempfile
 import os
-from beyondllm import source, retrieve, llms, generator
-from beyondllm.embeddings import FineTuneEmbeddings
+import pypdf
+from beyondllm import source, retrieve, embeddings, llms, generator
 from beyondllm.llms import GroqModel
-from PyPDF2 import PdfReader
-from io import BytesIO
 
-# Function definitions
 def generate_response(uploaded_file, query_text):
-    if uploaded_file is not None:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-            temp_file.write(uploaded_file.getvalue())
-            temp_file_path = temp_file.name
+    if uploaded_file is not None and query_text:
+        save_path = "./uploaded_files"
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+        file_path = os.path.join(save_path, uploaded_file.name)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
 
         try:
-            # Debug: check if file was written
-            st.write("Temporary file created at:", temp_file_path)
+            data = source.fit(file_path, dtype="pdf", chunk_size=1024, chunk_overlap=0) 
+            
+            model_name='BAAI/bge-small-en-v1.5'
+            embed_model = embeddings.HuggingFaceEmbeddings(model_name=model_name)
 
-            # Your existing code here
-            data = source.fit(temp_file_path, dtype="pdf", chunk_size=1024, chunk_overlap=0)
             llm = GroqModel(
-                model='llama-3.1-70b-versatile',
-                groq_api_key=os.getenv('GROQ_API_KEY') )
-                 
+                model='llama-3.1-70b-versatile', 
+                groq_api_key=os.getenv('GROQ_API_KEY')
+                )       
+               
+            retriever = retrieve.auto_retriever(data, embed_model, type="normal", top_k=4)                   
             
-            # Fine-tune embedding model
-            fine_tuned_model = FineTuneEmbeddings()
-            embed_model = fine_tuned_model.train(data, "BAAI/bge-small-en-v1.5", llm, "fintune")
+            pipeline = generator.Generate(question=query_text, retriever=retriever, llm=llm)
+            response = pipeline.call()        
+            return response
 
-            embed_model = fine_tuned_model.load_model("fintune")
-
-            # Set up retriever
-            retriever = retrieve.auto_retriever(data, embed_model, type="normal", top_k=4)
-
-            # Create QA pipeline
-            pipeline = generator.Generate(question=query_text, retriever=retriever, llm=llm)        
-            return pipeline.call()
-
-        finally:
-            # Clean up: remove the temporary file
-            os.unlink(temp_file_path)
-
-            
+        except Exception as e:
+            st.error(f"Error: {str(e)}")
+            st.error(f"Error type: {type(e)}")
+            import traceback
+            st.error(f"Traceback: {traceback.format_exc()}")
+            return "Processing failed due to an error."
+        
+                    
     return "No file uploaded or processing failed."
 
 
@@ -95,7 +90,7 @@ if uploaded_file:
 
     # Form input and query
     if st.button('Submit', disabled=not query_text):
-        with st.spinner('Generating...'):
+        with st.spinner('Generating response...'):
             response = generate_response(uploaded_file, query_text)
             st.info(response)
 else:
