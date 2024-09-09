@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+import pypdf
 from beyondllm import source, retrieve, embeddings, llms, generator
 from beyondllm.llms import GroqModel
 
