@@ -1,5 +1,4 @@
 streamlit
-streamlit
 beyondllm
 llama-index-core>=0.10.1
 llama-index-embeddings-huggingface
