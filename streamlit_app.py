@@ -84,13 +84,6 @@ This is a question-answering platform that allows users to upload one or more PD
 ## Get Started
 
 """)
-st.subheader("Get a Groq API key")
-st.write("If you are pompted to enter a Groq API key that means there's an error on my end. Please input your Groq Api Key to proceed. If you don't have one you need to get your own API key by following the instructions:")
-st.write("""
-1. Go to the [Groq Console](https://console.groq.com/keys) and follow the prompts to get your API key.
-2. Copy it and paste it in the field provided.        
-3. Upload your document(s) and start asking questions.
-""")
 
 
 # Use the get_groq_api_key function to get the API key
@@ -100,6 +93,13 @@ groq_api_key = get_groq_api_key()
 if not groq_api_key:
     st.warning("No Groq API key found in secrets or environment variables.")
     groq_api_key = st.text_input('Enter your Groq API Key:', type='password')
+    st.subheader("Get a Groq API key")
+    st.write("If you are seing this that means there's an error on my end. Please input your Groq Api Key to proceed. If you don't have one you need to get your own API key by following the instructions:")
+    st.write("""
+    1. Go to the [Groq Console](https://console.groq.com/keys) and follow the prompts to get your API key.
+    2. Copy it and paste it in the field provided.        
+    3. Upload your document(s) and start asking questions.
+    """)
     if groq_api_key:
         # Store the entered key in session state
         st.session_state['groq_api_key'] = groq_api_key
